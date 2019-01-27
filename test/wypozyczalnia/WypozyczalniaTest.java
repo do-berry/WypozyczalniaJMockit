@@ -5,15 +5,19 @@
  */
 package wypozyczalnia;
 
+import java.util.Date;
+import mockit.Expectations;
 import mockit.FullVerificationsInOrder;
 import mockit.Injectable;
+import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
-
+import system.Egzemplarz;
+import system.Operacja;
 /**
  *
  * @author USER
@@ -21,6 +25,8 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class WypozyczalniaTest {
     
+    @Mocked
+        Film film;
     @Injectable
         ProfilKlienta klient;
     public WypozyczalniaTest() {
@@ -61,4 +67,79 @@ public class WypozyczalniaTest {
         }
         };
     }
+    /**
+     * Test of zlozRezerwacje method, of class Wypozyczalnia.
+     */
+    @Test
+    public void testZlozRezerwacje() {
+        System.out.println("zlozRezerwacje");
+        Wypozyczalnia instance = new Wypozyczalnia();
+        String[] daneFilmu = null;
+        String[] expResult = {"Brak dostepnych egzemplarzy", "Rezerwacja dodana", "Nie znaleziono profilu"};      
+        String result;
+        String[] danePesele = {"000", "111"};
+        String daneDoKlientow[][]={{"000","imie0", "nazwisko0", "email0", "adres0"}};
+        String[] daneDoFilmu = {"1", "tytul1", "studio1", "rezyse1", "gatunek1", "nosnik1"};
+        
+        Egzemplarz egzemplarz = new Egzemplarz(1, film);
+        
+        Date daneDaty[] = {new Date(12, 10, 11), new Date(19, 10, 11)};
+        
+        instance.dodajKlienta(daneDoKlientow[0]);
+        instance.filmy.add(film);
+        instance.filmy.add(new Film(daneDoFilmu));
+        new Expectations() {
+        {
+            film.sprawdzDate(daneDaty[0]);     result = null;
+            film.sprawdzDate(daneDaty[1]);     result = egzemplarz;
+            instance.szukajFilmu(new Film(daneDoFilmu)); result = film;
+        }
+        };
+        for(int i =0; i<2; i++)
+        {
+            result = instance.zlozRezerwacje(danePesele[0],daneDoFilmu , daneDaty[i]);
+            assertEquals(expResult[i], result);
+        }
+        
+        result = instance.zlozRezerwacje(danePesele[1], daneFilmu, daneDaty[0]);
+        assertEquals(expResult[2], result);
+    }
+
+    /**
+     * Test of wypozycz method, of class Wypozyczalnia.
+     */
+    @Test
+    public void testWypozycz() {
+        System.out.println("wypozycz");
+        Wypozyczalnia instance = new Wypozyczalnia();
+        String[] daneFilmu = null;
+        String[] expResult = {"Brak dostepnych egzemplarzy", "Wypozyczono", "Nie znaleziono profilu"};      
+        String result;
+        String[] danePesele = {"000", "111"};
+        String daneDoKlientow[][]={{"000","imie0", "nazwisko0", "email0", "adres0"}};
+        String[] daneDoFilmu = {"1", "tytul1", "studio1", "rezyse1", "gatunek1", "nosnik1"};
+        
+        Egzemplarz egzemplarz = new Egzemplarz(1, film);
+        
+        Date daneDaty[] = {new Date(12, 10, 11), new Date(19, 10, 11)};
+        
+        instance.dodajKlienta(daneDoKlientow[0]);
+        instance.filmy.add(film);
+        instance.filmy.add(new Film(daneDoFilmu));
+        new Expectations() {
+        {
+            film.sprawdzDate(daneDaty[0]);     result = null;
+            film.sprawdzDate(daneDaty[1]);     result = egzemplarz;
+            instance.szukajFilmu(new Film(daneDoFilmu)); result = film;
+        }
+        };
+        for(int i =0; i<2; i++)
+        {
+            result = instance.wypozycz(danePesele[0],daneDoFilmu , daneDaty[i]);
+            assertEquals(expResult[i], result);
+        }
+        result = instance.zlozRezerwacje(danePesele[1], daneFilmu, daneDaty[0]);
+        assertEquals(expResult[2], result);
+    }
+
 }
